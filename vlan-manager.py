@@ -170,6 +170,7 @@ def UpdateVLANs(device,vlanfolder,vlanlist):
 		if not linedesc == '':
 			intdesc = 'description ' + linedesc
 			cmdlist.append(intdesc)
+	cmdlist.append('do wr mem')
 	# Start Connection
 	try:
 		sshnet_connect = ConnectHandler(device_type=devicetype, ip=deviceip, username=sshusername, password=sshpassword, secret=enablesecret)
@@ -258,16 +259,21 @@ print 'Completed update of local DB'
 #### Update devices with new VLAN information
 continueq = raw_input('Do you want to want to update (a)ll switches or just a single (s)witch? (a/s)?:')
 if 's' in continueq.lower():
-	devicenameq = raw_input('What is the Hostname (in the XLSX file) of the device you want to update?:')
-	for device in devicelist:
-		devicehostname = device.get('Hostname').encode('utf-8')
-		if devicenameq == devicehostname:
-			singledevice = {}
-			singledevice['Hostname'] = devicehostname
-			singledevice['IP'] = device.get('IP').encode('utf-8')
-			singledevice['Vendor'] = device.get('Vendor').encode('utf-8')
-			singledevice['Type'] = device.get('Type').encode('utf-8')
-			UpdateVLANs(singledevice,databaselocation,vlanlist)
+	loopq = 1
+	while loopq == 1:
+		devicenameq = raw_input('What is the Hostname (in the XLSX file) of the device you want to update?:')
+		for device in devicelist:
+			devicehostname = device.get('Hostname').encode('utf-8')
+			if devicenameq == devicehostname:
+				singledevice = {}
+				singledevice['Hostname'] = devicehostname
+				singledevice['IP'] = device.get('IP').encode('utf-8')
+				singledevice['Vendor'] = device.get('Vendor').encode('utf-8')
+				singledevice['Type'] = device.get('Type').encode('utf-8')
+				UpdateVLANs(singledevice,databaselocation,vlanlist)
+		loopquestion = raw_input('Do you want to update another switch? (Y/N):')
+		if 'n' in loopquestion.lower():
+			loopq = 0
 if __name__ == "__main__":
 	if 'a' in continueq.lower():
 		# Start Threads
